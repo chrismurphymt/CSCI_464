@@ -1,6 +1,8 @@
 from google.cloud import bigquery
 import pandas as pd
 
+# \(Not.*\n*.*\)
+
 #Init
 client = bigquery.Client()
 
@@ -22,20 +24,26 @@ def create_query_string(year):
     query = "SELECT zip_code, hospital_type, emergency_services, hospital_overall_rating, mortality_national_comparison,readmission_national_comparison, patient_experience_national_comparison, effectiveness_of_care_national_comparison, efficient_use_of_medical_imaging_national_comparison, drg_definition, total_discharges, average_covered_charges, average_total_payments, average_medicare_payments, hospital_ownership FROM `bigquery-public-data.cms_medicare.inpatient_charges_" + year + "` as inpatient_2011 JOIN `bigquery-public-data.cms_medicare.hospital_general_info` as hos_gen ON hos_gen.provider_id = inpatient_2011.provider_id"
     return query
 
-twenty11 = estimate_gigabytes_scanned(create_query_string("2011"), client)
-twenty12 = estimate_gigabytes_scanned(create_query_string("2012"), client)
-twenty13 = estimate_gigabytes_scanned(create_query_string("2013"), client)
-twenty14 = estimate_gigabytes_scanned(create_query_string("2014"), client)
-twenty15 = estimate_gigabytes_scanned(create_query_string("2015"), client)
+home_care_query = "SELECT * FROM `bigquery-public-data.cms_medicare.home_health_agencies_2014`"
 
-df1 = twenty11.to_dataframe()
-df2 = twenty12.to_dataframe()
-df3 = twenty13.to_dataframe()
-df4 = twenty14.to_dataframe()
-df5 = twenty15.to_dataframe()
+home_care_data = estimate_gigabytes_scanned(home_care_query, client)
 
-frames = [df1, df2, df3, df4, df5]
+# twenty11 = estimate_gigabytes_scanned(create_query_string("2011"), client)
+# twenty12 = estimate_gigabytes_scanned(create_query_string("2012"), client)
+# twenty13 = estimate_gigabytes_scanned(create_query_string("2013"), client)
+# twenty14 = estimate_gigabytes_scanned(create_query_string("2014"), client)
+# twenty15 = estimate_gigabytes_scanned(create_query_string("2015"), client)https://www.kaggle.com/datasets?sortBy=hottest&group=public&page=1&pageSize=20&size=all&filetype=bigQuery&license=all
+#
+# df1 = twenty11.to_dataframe()
+# df2 = twenty12.to_dataframe()
+# df3 = twenty13.to_dataframe()
+# df4 = twenty14.to_dataframe()
+# df5 = twenty15.to_dataframe()
+#
+# frames = [df1, df2, df3, df4, df5]
+# results = pd.concat(frames)
+# hundy = results.sample(n=100000)
+# hundy.to_csv("hospital_sample.csv")
 
-results = pd.concat(frames)
-hundy = results.sample(n=100000)
-hundy.to_csv("hospital.csv")
+results = home_care_data.to_dataframe()
+results.to_csv("home_health_agencies_2014.csv")
